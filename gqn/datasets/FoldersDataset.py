@@ -33,8 +33,8 @@ class FoldersDataset(Dataset):
     def __getitem__(self, idx):
         images, viewpoints = self.scenes[idx]
 
-        if self.max_viewpoints is not None and len(images) > self.max_viewpoints:
-            indices = random.sample([i for i in range(len(images))], self.max_viewpoints)
+        if self.max_viewpoints is not None and len(images) > self.max_viewpoints + 1:
+            indices = random.sample([i for i in range(len(images))], self.max_viewpoints + 1)
             images, viewpoints = images[indices], viewpoints[indices]
 
         images = [Image.open(img) for img in images]

@@ -14,9 +14,9 @@ def partition(images, viewpoints, min_viewpoints=None):
 
     # Shuffle views (and sample a random number of them between [min_viewpoints+1, total viewpoints] during training)
     if min_viewpoints is None:
-        n_context = m - 1
+        n_context = m
     else:
-        n_context = random.randint(min_viewpoints + 1, m - 1)
+        n_context = random.randint(min_viewpoints + 1, m)
     indices = random.sample([i for i in range(m)], n_context)
 
     # Partition into context and query sets

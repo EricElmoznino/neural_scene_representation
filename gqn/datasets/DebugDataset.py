@@ -11,12 +11,13 @@ class DebugDatset(Dataset):
         super().__init__()
         self.res = resolution
         self.v_dim = 7
+        self.max_viewpoints = max_viewpoints
 
     def __len__(self):
         return 128
 
     def __getitem__(self, idx):
-        images = torch.randn(15, 3, self.res, self.res)
-        viewpoints = torch.randn(15, self.v_dim)
+        images = torch.randn(self.max_viewpoints + 1, 3, self.res, self.res)
+        viewpoints = torch.randn(self.max_viewpoints + 1, self.v_dim)
 
         return images, viewpoints
