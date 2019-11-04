@@ -27,7 +27,7 @@ from ignite.handlers import ModelCheckpoint, Timer
 from ignite.metrics import RunningAverage
 
 from gqn import GenerativeQueryNetwork
-from gqn.datasets import DebugDatset, partition
+from gqn.datasets import DebugDatset, AI2ThorDataset, partition
 from gqn import utils
 
 cuda = torch.cuda.is_available()
@@ -65,12 +65,16 @@ if __name__ == '__main__':
     os.mkdir(save_dir)
 
     # Load the dataset
-    train_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
-    valid_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
+    # train_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
+    # val_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
+    train_dataset = AI2ThorDataset(os.path.join(args.data_dir, 'train'), resolution=args.resolution,
+                                   max_viewpoints=args.max_viewpoints)
+    val_dataset = AI2ThorDataset(os.path.join(args.data_dir, 'val'), resolution=args.resolution,
+                                 max_viewpoints=args.max_viewpoints)
 
     kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
-    valid_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # Create model and optimizer
     model = GenerativeQueryNetwork(c_dim=3, v_dim=train_dataset.v_dim,
@@ -164,13 +168,14 @@ if __name__ == '__main__':
 
             writer.add_image("representation", make_grid(r), engine.state.epoch)
             writer.add_image("reconstruction", make_grid(x_mu), engine.state.epoch)
+            writer.add_image("original", make_grid(x_q), engine.state.epoch)
 
 
     @trainer.on(Events.EPOCH_COMPLETED)
     def validate(engine):
         model.eval()
         with torch.no_grad():
-            x, v = next(iter(valid_loader))
+            x, v = next(iter(val_loader))
             x, v = x.to(device), v.to(device)
             x, v, x_q, v_q = partition(x, v, args.min_viewpoints)
 

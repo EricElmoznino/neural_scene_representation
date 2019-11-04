@@ -12,7 +12,8 @@ class FoldersDataset(Dataset):
     Dataset that assumes images in the following folder format:
     - data_dir
         - scene_1
-            - image_1.[jpg/png/etc.] (image file for a given view)
+            - 00000.[jpg/png/etc.] (image file for first view)
+            - 00001.[jpg/png/etc.] (image file for second view)
             - ...
             - viewpoints.npy (viewpoint data for all images in the scene sorted alphabetically)
         - scene_2
@@ -22,9 +23,9 @@ class FoldersDataset(Dataset):
     def __init__(self, data_dir, resolution, max_viewpoints=None):
         super().__init__()
         self.scenes = load_data(data_dir)
-        self.v_dim = self.scenes[0][1].shape[1]
         self.res = resolution
         self.max_viewpoints = max_viewpoints
+        self.v_dim = self.transform_viewpoint(torch.from_numpy(self.scenes[0][1])).shape[-1]
 
     def __len__(self):
         return len(self.scenes)
@@ -37,14 +38,18 @@ class FoldersDataset(Dataset):
             images, viewpoints = images[indices], viewpoints[indices]
 
         images = [Image.open(img) for img in images]
-        images = [tr.to_tensor(img) for img in images]
         images = [tr.resize(img, [self.res, self.res]) for img in images
-                  if img.shape[1] != self.res or img.shape[2] != self.res]
+                  if img.height != self.res or img.width != self.res]
+        images = [tr.to_tensor(img) for img in images]
         images = torch.stack(images)
 
         viewpoints = torch.from_numpy(viewpoints)
+        viewpoints = self.transform_viewpoint(viewpoints)
 
         return images, viewpoints
+
+    def transform_viewpoint(self, v):
+        return v
 
 
 def load_data(data_dir):
@@ -53,10 +58,10 @@ def load_data(data_dir):
     scenes = [os.path.join(data_dir, s) for s in scenes]
     for s in scenes:
         images = os.listdir(s)
-        images = [img for img in images if img != 'views.npy' and img != '.DS_Store']
+        images = [img for img in images if img != 'viewpoints.npy' and img != '.DS_Store']
         images = [os.path.join(s, img) for img in images]
         images = np.array(images)
         images.sort()
-        viewpoints = np.load(os.path.join(s, 'viewpoints.npy'))
+        viewpoints = np.load(os.path.join(s, 'viewpoints.npy')).astype(np.float32)
         data.append([images, viewpoints])
     return data
