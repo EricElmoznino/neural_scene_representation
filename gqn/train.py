@@ -1,10 +1,3 @@
-"""
-run-gqn.py
-
-Script to train the a GQN on the Shepard-Metzler dataset
-in accordance to the hyperparameter settings described in
-the supplementary materials of the paper.
-"""
 import random
 import math
 import os
@@ -31,7 +24,7 @@ from gqn.datasets import DebugDatset, AI2ThorDataset, partition
 from gqn import utils
 
 cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if cuda else "cpu")
+device = torch.device('cuda:0' if cuda else 'cpu')
 
 # Random seeding
 random.seed(99)
@@ -118,18 +111,20 @@ if __name__ == '__main__':
             mu = next(mu_scheme)
             i = engine.state.iteration
             for group in optimizer.param_groups:
-                group["lr"] = mu * math.sqrt(1 - 0.999 ** i) / (1 - 0.9 ** i)
+                group['lr'] = mu * math.sqrt(1 - 0.999 ** i) / (1 - 0.9 ** i)
 
-        return {"elbo": elbo.item(), "kl": kl_divergence.item(), "sigma": sigma, "mu": mu}
+        return {'elbo': elbo.item(), 'likelihood': likelihood.item(), 'kl': kl_divergence.item(),
+                'sigma': sigma, 'mu': mu}
 
 
     # Trainer and metrics
     trainer = Engine(step)
-    metric_names = ["elbo", "kl", "sigma", "mu"]
-    RunningAverage(output_transform=lambda x: x["elbo"]).attach(trainer, "elbo")
-    RunningAverage(output_transform=lambda x: x["kl"]).attach(trainer, "kl")
-    RunningAverage(output_transform=lambda x: x["sigma"]).attach(trainer, "sigma")
-    RunningAverage(output_transform=lambda x: x["mu"]).attach(trainer, "mu")
+    metric_names = ['elbo', 'likelihood', 'kl', 'sigma', 'mu']
+    RunningAverage(output_transform=lambda x: x['elbo']).attach(trainer, 'elbo')
+    RunningAverage(output_transform=lambda x: x['likelihood']).attach(trainer, 'likelihood')
+    RunningAverage(output_transform=lambda x: x['kl']).attach(trainer, 'kl')
+    RunningAverage(output_transform=lambda x: x['sigma']).attach(trainer, 'sigma')
+    RunningAverage(output_transform=lambda x: x['mu']).attach(trainer, 'mu')
     ProgressBar().attach(trainer, metric_names=metric_names)
 
     # Model checkpointing
@@ -149,7 +144,7 @@ if __name__ == '__main__':
     @trainer.on(Events.ITERATION_COMPLETED)
     def log_metrics(engine):
         for metric, value in engine.state.metrics.items():
-            writer.add_scalar("training/{}".format(metric), value, engine.state.iteration)
+            writer.add_scalar('training/{}'.format(metric), value, engine.state.iteration)
 
 
     @trainer.on(Events.EPOCH_COMPLETED)
@@ -166,9 +161,9 @@ if __name__ == '__main__':
             x_mu = x_mu.detach().cpu().float()
             r = r.detach().cpu().float()
 
-            writer.add_image("representation", make_grid(r), engine.state.epoch)
-            writer.add_image("reconstruction", make_grid(x_mu), engine.state.epoch)
-            writer.add_image("original", make_grid(x_q), engine.state.epoch)
+            writer.add_image('representation', make_grid(r), engine.state.epoch)
+            writer.add_image('reconstruction', make_grid(x_mu), engine.state.epoch)
+            writer.add_image('query', make_grid(x_q), engine.state.epoch)
 
 
     @trainer.on(Events.EPOCH_COMPLETED)
@@ -191,8 +186,9 @@ if __name__ == '__main__':
             # Evidence lower bound
             elbo = likelihood - kl_divergence
 
-            writer.add_scalar("validation/elbo", elbo.item(), engine.state.epoch)
-            writer.add_scalar("validation/kl", kl_divergence.item(), engine.state.epoch)
+            writer.add_scalar('validation/elbo', elbo.item(), engine.state.epoch)
+            writer.add_scalar('validation/likelihood', likelihood.item(), engine.state.epoch)
+            writer.add_scalar('validation/kl', kl_divergence.item(), engine.state.epoch)
 
 
     @trainer.on(Events.EXCEPTION_RAISED)
