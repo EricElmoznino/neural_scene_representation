@@ -64,6 +64,6 @@ def scene_data(scene_dir):
     images = [img for img in images if img != 'viewpoints.npy' and img != '.DS_Store']
     images = [os.path.join(scene_dir, img) for img in images]
     images = np.array(images)
-    images = sorted(images)
+    images.sort()
     viewpoints = np.load(os.path.join(scene_dir, 'viewpoints.npy')).astype(np.float32)
     return images, viewpoints
