@@ -22,7 +22,7 @@ class FoldersDataset(Dataset):
     """
     def __init__(self, data_dir, resolution, max_viewpoints=None):
         super().__init__()
-        self.scenes = load_data(data_dir)
+        self.scenes = load_scenes(data_dir)
         self.res = resolution
         self.max_viewpoints = max_viewpoints
         self.v_dim = self.transform_viewpoint(torch.from_numpy(self.scenes[0][1])).shape[-1]
@@ -31,7 +31,7 @@ class FoldersDataset(Dataset):
         return len(self.scenes)
 
     def __getitem__(self, idx):
-        images, viewpoints = self.scenes[idx]
+        images, viewpoints = scene_data(self.scenes[idx])
 
         if self.max_viewpoints is not None and len(images) > self.max_viewpoints + 1:
             indices = random.sample([i for i in range(len(images))], self.max_viewpoints + 1)
@@ -52,16 +52,18 @@ class FoldersDataset(Dataset):
         return v
 
 
-def load_data(data_dir):
-    data = []
+def load_scenes(data_dir):
     scenes = os.listdir(data_dir)
+    scenes = [s for s in scenes if s != '.DS_Store']
     scenes = [os.path.join(data_dir, s) for s in scenes]
-    for s in scenes:
-        images = os.listdir(s)
-        images = [img for img in images if img != 'viewpoints.npy' and img != '.DS_Store']
-        images = [os.path.join(s, img) for img in images]
-        images = np.array(images)
-        images.sort()
-        viewpoints = np.load(os.path.join(s, 'viewpoints.npy')).astype(np.float32)
-        data.append([images, viewpoints])
-    return data
+    return scenes
+
+
+def scene_data(scene_dir):
+    images = os.listdir(scene_dir)
+    images = [img for img in images if img != 'viewpoints.npy' and img != '.DS_Store']
+    images = [os.path.join(scene_dir, img) for img in images]
+    images = np.array(images)
+    images = sorted(images)
+    viewpoints = np.load(os.path.join(scene_dir, 'viewpoints.npy')).astype(np.float32)
+    return images, viewpoints

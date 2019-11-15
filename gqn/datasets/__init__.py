@@ -1,5 +1,5 @@
 from .FoldersDataset import FoldersDataset
-from .AI2ThorDataset import AI2ThorDataset
+from .XYRHDataset import XYRHDataset
 from .ShepardMetzlerDataset import ShepardMetzlerDataset
 from .DebugDataset import DebugDatset
 from .partition import partition
