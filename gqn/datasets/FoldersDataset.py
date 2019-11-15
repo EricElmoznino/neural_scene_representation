@@ -25,7 +25,7 @@ class FoldersDataset(Dataset):
         self.scenes = load_scenes(data_dir)
         self.res = resolution
         self.max_viewpoints = max_viewpoints
-        self.v_dim = self.transform_viewpoint(torch.from_numpy(self.scenes[0][1])).shape[-1]
+        self.v_dim = self.transform_viewpoint(torch.from_numpy(scene_data(self.scenes[0])[1])).shape[-1]
 
     def __len__(self):
         return len(self.scenes)
