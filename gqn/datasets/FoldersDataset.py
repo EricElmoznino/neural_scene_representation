@@ -9,11 +9,13 @@ from torch.utils.data import Dataset
 
 class FoldersDataset(Dataset):
     """
-    Dataset that assumes scene data in the following folder format:
+    Dataset that assumes images in the following folder format:
     - data_dir
         - scene_1
-            - images.npy (all images of the scene from different viewpoints)
-            - viewpoints.npy (viewpoint specification for all images)
+            - 00000.[jpg/png/etc.] (image file for first view)
+            - 00001.[jpg/png/etc.] (image file for second view)
+            - ...
+            - viewpoints.npy (viewpoint data for all images in the scene sorted alphabetically)
         - scene_2
             - ...
         - ...
@@ -35,7 +37,7 @@ class FoldersDataset(Dataset):
             indices = random.sample([i for i in range(len(images))], self.max_viewpoints + 1)
             images, viewpoints = images[indices], viewpoints[indices]
 
-        images = [Image.fromarray(img) for img in images]
+        images = [Image.open(img) for img in images]
         images = [tr.resize(img, [self.res, self.res]) for img in images
                   if img.height != self.res or img.width != self.res]
         images = [tr.to_tensor(img) for img in images]
@@ -58,6 +60,10 @@ def load_scenes(data_dir):
 
 
 def scene_data(scene_dir):
-    images = np.load(os.path.join(scene_dir, 'images.npy'))
+    images = os.listdir(scene_dir)
+    images = [img for img in images if img != 'viewpoints.npy' and img != '.DS_Store']
+    images = [os.path.join(scene_dir, img) for img in images]
+    images = np.array(images)
+    images.sort()
     viewpoints = np.load(os.path.join(scene_dir, 'viewpoints.npy')).astype(np.float32)
     return images, viewpoints
