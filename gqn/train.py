@@ -66,8 +66,8 @@ if __name__ == '__main__':
                               max_viewpoints=args.max_viewpoints)
 
     kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, **kwargs)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, **kwargs)
 
     # Create model and optimizer
     model = GenerativeQueryNetwork(c_dim=3, v_dim=train_dataset.v_dim,
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
             x_mu, r, _ = model(x, v, x_q, v_q)
 
-            r = r.view(-1, 1, 16, 16)
+            r = r.view(-1, 1, int(math.sqrt(r.shape[-1])), int(math.sqrt(r.shape[-1])))
 
             x_mu = x_mu.detach().cpu().float()
             r = r.detach().cpu().float()
