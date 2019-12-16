@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
             x_mu, r, _ = model(x, v, x_q, v_q)
 
-            r = r.view(-1, 1, int(math.sqrt(r.shape[-1])), int(math.sqrt(r.shape[-1])))
+            r = r.view(-1, 1, int(math.sqrt(args.r_dim)), int(math.sqrt(args.r_dim)))
 
             x_mu = x_mu.detach().cpu().float()
             r = r.detach().cpu().float()
