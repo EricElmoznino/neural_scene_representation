@@ -97,12 +97,6 @@ if __name__ == '__main__':
         optimizer.step()
         optimizer.zero_grad()
 
-        with torch.no_grad():
-            # Anneal learning rate
-            i = engine.state.iteration
-            for group in optimizer.param_groups:
-                group['lr'] = args.lr * math.sqrt(1 - 0.999 ** i) / (1 - 0.9 ** i)
-
         return {'elbo': elbo.item(), 'likelihood': likelihood.item(), 'kl': kl_divergence.item(), 'sigma': sigma}
 
 
