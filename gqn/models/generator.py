@@ -162,7 +162,7 @@ class Conv2dLSTMCell(nn.Module):
     """
     2d convolutional long short-term memory (LSTM) cell.
     Functionally equivalent to nn.LSTMCell with the
-    difference being that nn.Kinear layers are replaced
+    difference being that nn.Linear layers are replaced
     by nn.Conv2D layers.
 
     :param in_channels: number of input channels
