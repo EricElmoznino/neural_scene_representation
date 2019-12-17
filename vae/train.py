@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', required=True, type=str, help='directory of the data')
     parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs run')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size')
-    parser.add_argument('--lr', type=float, default=5e-4, help='learning rate')
+    parser.add_argument('--lr', type=float, default=5e-6, help='learning rate')
     parser.add_argument('--resolution', type=int, default=64, help='resolution of input images')
     parser.add_argument('--r_dim', type=int, default=256, help='r_dim for VAE')
     parser.add_argument('--h_dim', type=int, default=128, help='h_dim for VAE')
@@ -71,7 +71,6 @@ if __name__ == '__main__':
 
     # Rate annealing schemes
     sigma_scheme = utils.Annealer(2.0, 0.7, 80000)
-    mu_scheme = utils.Annealer(args.lr, args.lr * 0.1, 1.6e5)
 
 
     def step(engine, batch):
@@ -100,13 +99,11 @@ if __name__ == '__main__':
 
         with torch.no_grad():
             # Anneal learning rate
-            mu = next(mu_scheme)
             i = engine.state.iteration
             for group in optimizer.param_groups:
-                group['lr'] = mu * math.sqrt(1 - 0.999 ** i) / (1 - 0.9 ** i)
+                group['lr'] = args.lr * math.sqrt(1 - 0.999 ** i) / (1 - 0.9 ** i)
 
-        return {'elbo': elbo.item(), 'likelihood': likelihood.item(), 'kl': kl_divergence.item(),
-                'sigma': sigma, 'mu': mu}
+        return {'elbo': elbo.item(), 'likelihood': likelihood.item(), 'kl': kl_divergence.item(), 'sigma': sigma}
 
 
     # Trainer and metrics
@@ -116,15 +113,13 @@ if __name__ == '__main__':
     RunningAverage(output_transform=lambda x: x['likelihood']).attach(trainer, 'likelihood')
     RunningAverage(output_transform=lambda x: x['kl']).attach(trainer, 'kl')
     RunningAverage(output_transform=lambda x: x['sigma']).attach(trainer, 'sigma')
-    RunningAverage(output_transform=lambda x: x['mu']).attach(trainer, 'mu')
     ProgressBar().attach(trainer, metric_names=metric_names)
 
     # Model checkpointing
     checkpoint_handler = ModelCheckpoint(os.path.join(save_dir, 'checkpoints'), 'gqn',
                                          save_interval=1, n_saved=3, require_empty=False)
     trainer.add_event_handler(event_name=Events.EPOCH_COMPLETED, handler=checkpoint_handler,
-                              to_save={'model': model, 'optimizer': optimizer,
-                                       'sigma_annealer': sigma_scheme, 'mu_annealer': mu_scheme})
+                              to_save={'model': model, 'optimizer': optimizer, 'sigma_annealer': sigma_scheme})
 
     timer = Timer(average=True).attach(trainer, start=Events.EPOCH_STARTED, resume=Events.ITERATION_STARTED,
                                        pause=Events.ITERATION_COMPLETED, step=Events.ITERATION_COMPLETED)
