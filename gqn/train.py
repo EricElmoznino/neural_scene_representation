@@ -58,12 +58,12 @@ if __name__ == '__main__':
     os.mkdir(save_dir)
 
     # Load the dataset
-    # train_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
-    # val_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
-    train_dataset = XYRHDataset(os.path.join(args.data_dir, 'train'), resolution=args.resolution,
-                                max_viewpoints=args.max_viewpoints)
-    val_dataset = XYRHDataset(os.path.join(args.data_dir, 'val'), resolution=args.resolution,
-                              max_viewpoints=args.max_viewpoints)
+    train_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
+    val_dataset = DebugDatset(data_dir=args.data_dir, resolution=args.resolution, max_viewpoints=args.max_viewpoints)
+    # train_dataset = XYRHDataset(os.path.join(args.data_dir, 'train'), resolution=args.resolution,
+    #                             max_viewpoints=args.max_viewpoints)
+    # val_dataset = XYRHDataset(os.path.join(args.data_dir, 'val'), resolution=args.resolution,
+    #                           max_viewpoints=args.max_viewpoints)
 
     kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True, **kwargs)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # Trainer and metrics
     trainer = Engine(step)
-    metric_names = ['elbo', 'likelihood', 'kl', 'sigma', 'mu']
+    metric_names = ['elbo', 'likelihood', 'kl', 'sigma']
     RunningAverage(output_transform=lambda x: x['elbo']).attach(trainer, 'elbo')
     RunningAverage(output_transform=lambda x: x['likelihood']).attach(trainer, 'likelihood')
     RunningAverage(output_transform=lambda x: x['kl']).attach(trainer, 'kl')

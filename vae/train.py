@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     # Trainer and metrics
     trainer = Engine(step)
-    metric_names = ['elbo', 'likelihood', 'kl', 'sigma', 'mu']
+    metric_names = ['elbo', 'likelihood', 'kl', 'sigma']
     RunningAverage(output_transform=lambda x: x['elbo']).attach(trainer, 'elbo')
     RunningAverage(output_transform=lambda x: x['likelihood']).attach(trainer, 'likelihood')
     RunningAverage(output_transform=lambda x: x['kl']).attach(trainer, 'kl')
