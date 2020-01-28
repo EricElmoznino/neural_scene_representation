@@ -22,7 +22,6 @@ class GeneratorNetwork(nn.Module):
     over a number of iterations.
 
     :param c_dim: number of channels in input
-    :param v_dim: dimensions of viewpoint
     :param r_dim: dimensions of representation
     :param z_dim: latent channels
     :param h_dim: hidden channels in LSTM
@@ -30,7 +29,7 @@ class GeneratorNetwork(nn.Module):
     :param shared_core: whether to share cores across refinements
     """
 
-    def __init__(self, c_dim, v_dim, r_dim, z_dim=3, h_dim=128, l=8, shared_core=True):
+    def __init__(self, c_dim, r_dim, z_dim=3, h_dim=128, l=8, shared_core=True):
         super().__init__()
 
         self.z_dim = z_dim
@@ -40,23 +39,22 @@ class GeneratorNetwork(nn.Module):
         # Generation network
         self.shared_core = shared_core
         if shared_core:
-            self.inference_core = InferenceCore(c_dim, v_dim, r_dim, h_dim)
-            self.generation_core = GenerationCore(v_dim, r_dim, z_dim, h_dim)
+            self.inference_core = InferenceCore(c_dim, r_dim, h_dim)
+            self.generation_core = GenerationCore(r_dim, z_dim, h_dim)
         else:
-            self.inference_core = nn.ModuleList([InferenceCore(c_dim, v_dim, r_dim, h_dim) for _ in range(l)])
-            self.generation_core = nn.ModuleList([GenerationCore(v_dim, r_dim, z_dim, h_dim) for _ in range(l)])
+            self.inference_core = nn.ModuleList([InferenceCore(c_dim, r_dim, h_dim) for _ in range(l)])
+            self.generation_core = nn.ModuleList([GenerationCore(r_dim, z_dim, h_dim) for _ in range(l)])
 
         self.eta_pi = nn.Conv2d(h_dim, 2*z_dim, kernel_size=5, stride=1, padding=2)
         self.eta_g = nn.Conv2d(h_dim, c_dim, kernel_size=1, stride=1, padding=0)
         self.eta_e = nn.Conv2d(h_dim, 2*z_dim, kernel_size=5, stride=1, padding=2)
 
-    def forward(self, x, v, r):
+    def forward(self, x, r):
         """
         Attempt to reconstruct x with corresponding
-        viewpoint v and context representation r.
+        context representation r.
 
         :param x: image to send reconstruct
-        :param v: viewpoint of image
         :param r: representation for image
         :return reconstruction of x and kl-divergence
         """
@@ -80,9 +78,9 @@ class GeneratorNetwork(nn.Module):
 
             # Inference state update
             if self.shared_core:
-                c_e, h_e = self.inference_core(x, v, r, c_e, h_e, h_g, u)
+                c_e, h_e = self.inference_core(x, r, c_e, h_e, h_g, u)
             else:
-                c_e, h_e = self.inference_core[l](x, v, r, c_e, h_e, h_g, u)
+                c_e, h_e = self.inference_core[l](x, r, c_e, h_e, h_g, u)
 
             # Posterior factor
             mu_q, logvar_q = torch.split(self.eta_e(h_e), self.z_dim, dim=1)
@@ -94,9 +92,9 @@ class GeneratorNetwork(nn.Module):
 
             # Generator state update
             if self.shared_core:
-                c_g, h_g, u = self.generation_core(v, r, c_g, h_g, u, z)
+                c_g, h_g, u = self.generation_core(r, c_g, h_g, u, z)
             else:
-                c_g, h_g, u = self.generation_core[l](v, r, c_g, h_g, u, z)
+                c_g, h_g, u = self.generation_core[l](r, c_g, h_g, u, z)
 
             # KL update
             kl += kl_divergence(q, pi)
@@ -106,20 +104,19 @@ class GeneratorNetwork(nn.Module):
 
         return x_mu, kl
 
-    def sample(self, v, r):
+    def sample(self, r):
         """
         Sample from the prior distribution to generate
-        a new image given a viewpoint and representation
+        a new image given a representation
 
-        :param v: viewpoint
         :param r: representation (context)
         """
-        batch_size = v.size(0)
+        batch_size = r.size(0)
 
         # Initial state
-        c_g = v.new_zeros((batch_size, self.h_dim, 16, 16))
-        h_g = v.new_zeros((batch_size, self.h_dim, 16, 16))
-        u = v.new_zeros((batch_size, self.h_dim, 64, 64))
+        c_g = r.new_zeros((batch_size, self.h_dim, 16, 16))
+        h_g = r.new_zeros((batch_size, self.h_dim, 16, 16))
+        u = r.new_zeros((batch_size, self.h_dim, 64, 64))
 
         for l in range(self.l):
             # Prior factor
@@ -132,9 +129,9 @@ class GeneratorNetwork(nn.Module):
 
             # State update
             if self.shared_core:
-                c_g, h_g, u = self.generation_core(v, r, c_g, h_g, u, z)
+                c_g, h_g, u = self.generation_core(r, c_g, h_g, u, z)
             else:
-                c_g, h_g, u = self.generation_core[l](v, r, c_g, h_g, u, z)
+                c_g, h_g, u = self.generation_core[l](r, c_g, h_g, u, z)
 
         # Image sample
         x_mu = self.eta_g(u)
