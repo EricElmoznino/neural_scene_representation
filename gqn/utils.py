@@ -4,10 +4,10 @@ from torch.optim.lr_scheduler import _LRScheduler
 # Learning rate at training step s with annealing
 class AnnealingStepLR(_LRScheduler):
     def __init__(self, optimizer, mu_i, mu_f, n):
-        super().__init__(optimizer)
         self.mu_i = mu_i
         self.mu_f = mu_f
         self.n = n
+        super().__init__(optimizer)
 
     def get_lr(self):
         return [max(self.mu_f + (self.mu_i - self.mu_f) * (1.0 - self.last_epoch / self.n), self.mu_f)
