@@ -16,12 +16,12 @@ class VAE(nn.Module):
     :param h_dim: hidden channels in LSTM
     :param l: Number of refinements of density
     """
-    def __init__(self, c_dim, r_dim, z_dim=64, h_dim=128, l=8):
+    def __init__(self, c_dim, r_dim, z_dim=3, h_dim=128, l=8):
         super().__init__()
         self.r_dim = r_dim
 
-        self.generator = GeneratorNetwork(c_dim, r_dim, z_dim, h_dim, l)
         self.representation = RepresentationNetwork(c_dim, r_dim, pool=True)
+        self.generator = GeneratorNetwork(c_dim, r_dim, z_dim, h_dim, l)
 
     def forward(self, x):
         """
@@ -45,10 +45,6 @@ class VAE(nn.Module):
 
         :param x: image to generate representation
         """
-        _,  _, h, w = x.shape
-
         r = self.representation(x)
-
-        x_mu = self.generator.sample((h, w), r)
-
+        x_mu = self.generator.sample(r)
         return x_mu

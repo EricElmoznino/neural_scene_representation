@@ -1,19 +1,30 @@
-class Annealer(object):
-    def __init__(self, init, delta, steps):
-        self.init = init
-        self.delta = delta
-        self.steps = steps
-        self.s = 0
-        self.recent = init
+from torch.optim.lr_scheduler import _LRScheduler
+
+
+# Learning rate at training step s with annealing
+class AnnealingStepLR(_LRScheduler):
+    def __init__(self, optimizer, mu_i, mu_f, n):
+        super().__init__(optimizer)
+        self.mu_i = mu_i
+        self.mu_f = mu_f
+        self.n = n
+
+    def get_lr(self):
+        return [max(self.mu_f + (self.mu_i - self.mu_f) * (1.0 - self.last_epoch / self.n), self.mu_f)
+                for _ in self.base_lrs]
+
+
+class AnnealingStepSigma(object):
+    def __init__(self, sigma_i, sigma_f, n):
+        self.sigma_i = sigma_i
+        self.sigma_f = sigma_f
+        self.n = n
+        self.last_epoch = 0
+        self.sigma = sigma_i
 
     def state_dict(self):
-        return {"init": self.init, "delta": self.delta, "steps": self.steps, "s": self.s}
+        return {"sigma_i": self.sigma_i, "sigma_f": self.sigma_f, "n": self.n, 'sigma': self.sigma}
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        self.s += 1
-        value = max(self.delta + (self.init - self.delta) * (1 - self.s / self.steps), self.delta)
-        self.recent = value
-        return value
+    def step(self):
+        self.sigma = max(self.sigma_f + (self.sigma_i - self.sigma_f) * (1 - self.last_epoch / self.n), self.sigma_f)
+        self.last_epoch += 1

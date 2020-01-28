@@ -46,19 +46,18 @@ class RepresentationNetwork(nn.Module):
         skip_in = F.relu(self.conv1(x))
         skip_out = F.relu(self.conv2(skip_in))
 
-        x = F.relu(self.conv3(skip_in))
-        x = F.relu(self.conv4(x)) + skip_out
+        r = F.relu(self.conv3(skip_in))
+        r = F.relu(self.conv4(r)) + skip_out
 
         # Second skip-connected conv block (merged)
         v = v.view(v.size(0), -1, 1, 1)
-        v = v.repeat(1, 1, x.shape[-2], x.shape[-1])
-        skip_in = torch.cat([x, v], dim=1)
+        v = v.repeat(1, 1, r.shape[-2], r.shape[-1])
+        skip_in = torch.cat([r, v], dim=1)
         skip_out = F.relu(self.conv5(skip_in))
 
-        x = F.relu(self.conv6(skip_in))
-        x = F.relu(self.conv7(x)) + skip_out
-
-        r = F.relu(self.conv8(x))
+        r = F.relu(self.conv6(skip_in))
+        r = F.relu(self.conv7(r)) + skip_out
+        r = F.relu(self.conv8(r))
 
         if self.pool:
             r = self.avgpool(r)
