@@ -137,25 +137,6 @@ if __name__ == '__main__':
 
 
     @trainer.on(Events.EPOCH_COMPLETED)
-    def save_images(engine):
-        with torch.no_grad():
-            x, v = engine.state.batch
-            x, v = x.to(device), v.to(device)
-            x, v, x_q, v_q = partition(x, v, args.min_viewpoints)
-
-            x_mu, r, _ = model(x, v, x_q, v_q)
-
-            r = r.view(-1, 1, int(math.sqrt(args.r_dim)), int(math.sqrt(args.r_dim)))
-
-            x_mu = x_mu.detach().cpu().float()
-            r = r.detach().cpu().float()
-
-            writer.add_image('representation', make_grid(r), engine.state.epoch)
-            writer.add_image('reconstruction', make_grid(x_mu), engine.state.epoch)
-            writer.add_image('query', make_grid(x_q), engine.state.epoch)
-
-
-    @trainer.on(Events.EPOCH_COMPLETED)
     def validate(engine):
         model.eval()
         with torch.no_grad():
@@ -178,6 +159,26 @@ if __name__ == '__main__':
             writer.add_scalar('validation/elbo', elbo.item(), engine.state.epoch)
             writer.add_scalar('validation/likelihood', likelihood.item(), engine.state.epoch)
             writer.add_scalar('validation/kl', kl_divergence.item(), engine.state.epoch)
+
+
+    @trainer.on(Events.EPOCH_COMPLETED)
+    def save_images(engine):
+        model.eval()
+        with torch.no_grad():
+            x, v = engine.state.batch
+            x, v = x.to(device), v.to(device)
+            x, v, x_q, v_q = partition(x, v, args.min_viewpoints)
+
+            x_mu, r = model.sample(x, v, v_q)
+
+            r = r.view(-1, 1, int(math.sqrt(args.r_dim)), int(math.sqrt(args.r_dim)))
+
+            x_mu = x_mu.cpu().float()
+            r = r.cpu().float()
+
+            writer.add_image('representation', make_grid(r), engine.state.epoch)
+            writer.add_image('reconstruction', make_grid(x_mu), engine.state.epoch)
+            writer.add_image('query', make_grid(x_q), engine.state.epoch)
 
 
     @trainer.on(Events.EXCEPTION_RAISED)

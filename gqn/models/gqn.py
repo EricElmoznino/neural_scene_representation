@@ -82,6 +82,6 @@ class GenerativeQueryNetwork(nn.Module):
 
         r = torch.sum(phi, dim=1)
 
-        x_mu = self.generator.sample((h, w), query_v, r)
+        x_mu = self.generator.sample(query_v, r)
 
-        return x_mu
+        return x_mu, r
