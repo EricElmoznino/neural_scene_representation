@@ -42,9 +42,9 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=32, help='batch size')
     parser.add_argument('--lr', type=float, default=5e-4, help='learning rate')
     parser.add_argument('--resolution', type=int, default=64, help='resolution of input images')
-    parser.add_argument('--max_viewpoints', type=int, default=7,
+    parser.add_argument('--max_viewpoints', type=int, default=16,
                         help='maximum number of viewpoints for a given scene')
-    parser.add_argument('--min_viewpoints', type=int, default=3,
+    parser.add_argument('--min_viewpoints', type=int, default=8,
                         help='minimum number of viewpoints for a given scene')
     parser.add_argument('--r_dim', type=int, default=256, help='r_dim for GQN')
     parser.add_argument('--h_dim', type=int, default=128, help='h_dim for GQN')
