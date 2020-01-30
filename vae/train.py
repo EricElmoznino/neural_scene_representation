@@ -130,8 +130,9 @@ if __name__ == '__main__':
 
     @trainer.on(Events.ITERATION_COMPLETED)
     def log_metrics(engine):
-        for metric, value in engine.state.metrics.items():
-            writer.add_scalar('training/{}'.format(metric), value, engine.state.iteration)
+        if engine.state.iteration % 100 == 0:
+            for metric, value in engine.state.metrics.items():
+                writer.add_scalar('training/{}'.format(metric), value, engine.state.iteration)
 
 
     @trainer.on(Events.EPOCH_COMPLETED)
