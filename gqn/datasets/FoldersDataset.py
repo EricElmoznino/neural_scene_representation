@@ -25,13 +25,15 @@ class FoldersDataset(Dataset):
         self.scenes = load_scenes(data_dir)
         self.res = resolution
         self.max_viewpoints = max_viewpoints
-        self.v_dim = self.transform_viewpoint(torch.from_numpy(scene_data(self.scenes[0])[1])).shape[-1]
+        self.v_dim = self.get_v_dim()
 
     def __len__(self):
         return len(self.scenes)
 
     def __getitem__(self, idx):
         images, viewpoints = scene_data(self.scenes[idx])
+        if len(images) == 0:
+            return None, None
 
         if self.max_viewpoints is not None and len(images) > self.max_viewpoints + 1:
             indices = random.sample([i for i in range(len(images))], self.max_viewpoints + 1)
@@ -48,6 +50,16 @@ class FoldersDataset(Dataset):
 
         return images, viewpoints
 
+    def get_v_dim(self):
+        for i in range(len(self.scenes)):
+            _, viewpoints = scene_data(self.scenes[i])
+            if len(viewpoints) == 0:
+                continue
+            viewpoints = torch.from_numpy(viewpoints)
+            viewpoints = self.transform_viewpoint(viewpoints)
+            v_dim = viewpoints.shape[-1]
+            return v_dim
+
     def transform_viewpoint(self, v):
         return v
 
@@ -55,6 +67,7 @@ class FoldersDataset(Dataset):
 def load_scenes(data_dir):
     scenes = os.listdir(data_dir)
     scenes = [s for s in scenes if s != '.DS_Store']
+    scenes = sorted(scenes)
     scenes = [os.path.join(data_dir, s) for s in scenes]
     return scenes
 

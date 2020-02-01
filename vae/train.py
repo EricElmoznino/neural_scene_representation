@@ -19,7 +19,7 @@ from ignite.engine import Engine, Events
 from ignite.handlers import ModelCheckpoint, Timer
 from ignite.metrics import RunningAverage
 
-from vae import VAE
+from vae.models import VAE
 from vae.datasets import DebugDatset, FoldersDataset
 from vae import utils
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--run_name', required=True, type=str,
                         help='name of the current run (where runs are saved)')
     parser.add_argument('--data_dir', required=True, type=str, help='directory of the data')
-    parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs run')
+    parser.add_argument('--n_epochs', type=int, default=100, help='number of epochs run')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size')
     parser.add_argument('--lr', type=float, default=5e-4, help='learning rate')
     parser.add_argument('--resolution', type=int, default=64, help='resolution of input images')

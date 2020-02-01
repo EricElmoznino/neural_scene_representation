@@ -28,6 +28,8 @@ class FoldersDataset(Dataset):
 
     def __getitem__(self, idx):
         images = scene_data(self.scenes[idx])
+        if len(images) == 0:
+            return None
 
         index = random.sample([i for i in range(len(images))], 1)[0]
         image = images[index]
@@ -42,6 +44,7 @@ class FoldersDataset(Dataset):
 def load_scenes(data_dir):
     scenes = os.listdir(data_dir)
     scenes = [s for s in scenes if s != '.DS_Store']
+    scenes = sorted(scenes)
     scenes = [os.path.join(data_dir, s) for s in scenes]
     return scenes
 

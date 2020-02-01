@@ -6,4 +6,6 @@ GQN's are networks that extract invarient representations of scenes from images 
 
 Further information about the method can be found here https://science.sciencemag.org/content/360/6394/1204.full?ijkey=kGcNflzOLiIKQ&keytype=ref&siteid=sci. 
 
-Model and training code come from https://github.com/wohlert/generative-query-network-pytorch.
+Model and training code come from:
+- https://github.com/wohlert/generative-query-network-pytorch.
+- https://github.com/iShohei220/torch-gqn
