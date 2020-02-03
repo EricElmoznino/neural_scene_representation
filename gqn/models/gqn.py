@@ -50,7 +50,7 @@ class GenerativeQueryNetwork(nn.Module):
         phi = phi.view((batch_size, n_views, *phi_dims))
 
         # Sum over view representations
-        r = torch.sum(phi, dim=1)
+        r = torch.mean(phi, dim=1)
 
         # Use random (image, viewpoint) pair in batch as query
         x_mu, kl = self.generator(query_x, query_v, r)
