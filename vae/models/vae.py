@@ -47,4 +47,4 @@ class VAE(nn.Module):
         """
         r = self.representation(x)
         x_mu = self.generator.sample(r)
-        return x_mu
+        return x_mu, r

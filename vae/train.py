@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
 
     def save_images(engine, x):
-        x_mu, r, _ = model.sample(x)
+        x_mu, r = model.sample(x)
 
         r = r.view(-1, 1, int(math.sqrt(args.r_dim)), int(math.sqrt(args.r_dim)))
 
