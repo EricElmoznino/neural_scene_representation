@@ -14,6 +14,6 @@ def plot_rdm(array, n_scenes, normalize=True):
 
 def plot_scatter(groups, title):
     plt.close()
-    plots = [plt.scatter([p[0] for p in points], [p[1] for p in points]) for points in groups]
+    _ = [plt.scatter([p[0] for p in points], [p[1] for p in points]) for points in groups]
     plt.title(title)
     plt.show()
