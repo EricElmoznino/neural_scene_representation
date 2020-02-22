@@ -1,0 +1,60 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/javascript" src="script.js"></script>
+
+<div class="container" id="instructionsContainer">
+    <div id="instructions">
+        <h2>Welcome to our study!</h2>
+        <p>This is a psychology experiment in which you will be shown <b>pairs of images</b> and will need to <b>decide  whether or not the images come from the same room</b>. When the two images do come from the same room, their views will be pointing more or less in the same direction (i.e. the two images will have shared content). The task will take about <b>1 minute</b> to complete.</p>
+        <p>Before the task begins, there will be a brief <b>training session</b>. This training session will be identical to the actual experiment in every way, except that your responses will not be recorded and you will obtain feedback about the correct answers. The purpose of the training session is to give you a better understanding of the task.</p>
+        <h2>Consent</h2>
+        <p>This task is completely anonymous. By completing the task, you are consenting to be in this research study. Your participation is voluntary and you can stop at any time. If you are ready, check the box below to indicate your consent.</p>
+        <p><input type="checkbox" name="consent_check" value="agree" id="consent"> I agree to participate. </p>
+        <div id="startExperimentButton" class="button">
+            <a href="#" class="buttonText" id="startExperiment">Ready to begin!</a>
+        </div>
+    </div>
+</div>
+
+<div id="trial">
+    <h2 id="sessionMode">Training segment</h2>
+    <div class="row">
+        <div class="column">
+            <img width="480" height="270" id="trialImg1" src="">
+        </div>
+        <div class="column">
+            <img width="480" height="270" id="trialImg2" src="">
+        </div>
+    </div>
+    <div id="trialOptions">
+        <h3>How likely is it that these images are from the same room?</h3>
+        <div class="radioGroup">
+            <label class="radioOption"><input type="radio" name="responseOption" value="2"> Very likely</label>
+            <label class="radioOption"><input type="radio" name="responseOption" value="1"> Somewhat likely</label>
+            <label class="radioOption"><input type="radio" name="responseOption" value="0"> Unsure</label>
+            <label class="radioOption"><input type="radio" name="responseOption" value="-1"> Somewhat unlikely</label>
+            <label class="radioOption"><input type="radio" name="responseOption" value="-2"> Very unlikely</label>
+        </div>
+    </div>
+    <div id="nextTrialButton" class="button">
+        <a href="#" class="buttonText" id="nextTrial">Next</a>
+    </div>
+    <div id="feedback">
+        <h2 id="feedbackAnswer"></h2>
+    </div>
+    <div id="trainEndWarning">
+        <h2>Warning!!!</h2>
+        <p>This was the last trial in the training session. The experiment begins with the next presented images. Tick the box below to confirm that you are ready to begin the experiment before pressing the 'Next' button.</p>
+        <p><input type="checkbox" id="proceedExperiment"> I am ready to begin. </p>
+    </div>
+</div>
+
+<input type="hidden" id="response" name="response" value="">
+<input type="hidden" id="scene1" name="scene1" value="">
+<input type="hidden" id="scene2" name="scene2" value="">
+<input type="hidden" id="image1" name="image1" value="">
+<input type="hidden" id="image2" name="image2" value="">
+<input type="hidden" id="reactionTime" name="reactionTime" value="">
+
+<!-- do not put this on Turk -->
+<input type="submit" id="submitButton">

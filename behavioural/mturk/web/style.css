@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, Helvetica, serif;
+    font-size: 14pt;
+}
+
+.container{
+	position: relative;
+	top:5px;
+	margin: 0 auto;
+	width:1050px;
+	border: 2px solid gray;
+	text-align: center;
+}
+
+#instructions{
+	margin: 0 auto;
+	width: 680px;
+	font-size: 16px;
+}
+
+.button {
+    width: 200px;
+    text-align: center;
+    background: gray;
+    padding: 5px;
+    margin: 10px auto;
+}
+
+.buttonText {
+    color: rgb(200,200,200);
+    text-decoration: none;
+}
+
+.buttonText:hover {
+    color: white;
+}
+
+#trainEndWarning {
+    display: none;
+    color: red;
+}
+
+#feedback {
+    display: none;
+}
+
+#trial {
+    padding: 20px;
+    width: 1050px;
+    min-height: 712px;
+    margin: 0 auto;
+    display: none;
+    text-align: center;
+    border: 2px solid gray;
+}
+
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 50.00%;
+  padding: 5px;
+}
+
+#trialOptions{
+    text-align: center;
+    padding: 20px;
+}
+
+.radioGroup {
+    margin: 0px 410px;
+}
+
+.radioOption {
+    display: block;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+label, label>input[type='radio']{
+    font-size: 20px;
+    display: inline-block;
+    margin: 0;
+    line-height: 28px;
+    height: 28px;
+    vertical-align: top;
+}
+
+#nextTrialButton {
+    display: none;
+}

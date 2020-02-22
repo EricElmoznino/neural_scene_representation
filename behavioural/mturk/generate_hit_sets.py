@@ -89,5 +89,5 @@ if __name__ == '__main__':
 
     hits = generate_hit_sets(args.n_scenes, args.imgs_per_scene, args.n_trials,
                              args.min_hits_per_pair, args.intra_inter_ratio)
-    with open('hit_sets.json', 'w') as f:
+    with open('web/assets/hit_sets.json', 'w') as f:
         f.write(json.dumps({'hit_sets': hits}, indent=2))

@@ -1,0 +1,28 @@
+{
+  "train_hit_set": [
+    {
+      "scene1": 14,
+      "scene2": 15,
+      "img1": 1,
+      "img2": 1
+    },
+    {
+      "scene1": 14,
+      "scene2": 14,
+      "img1": 2,
+      "img2": 3
+    },
+    {
+      "scene1": 15,
+      "scene2": 15,
+      "img1": 2,
+      "img2": 3
+    },
+    {
+      "scene1": 15,
+      "scene2": 14,
+      "img1": 4,
+      "img2": 4
+    }
+  ]
+}
