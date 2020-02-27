@@ -7,15 +7,20 @@ body {
 	position: relative;
 	top:5px;
 	margin: 0 auto;
+    padding-bottom: 20px;
 	width:1050px;
 	border: 2px solid gray;
 	text-align: center;
 }
 
-#instructions{
+#instructions {
 	margin: 0 auto;
 	width: 680px;
 	font-size: 16px;
+}
+
+.exampleViews {
+    margin-bottom: 5px;
 }
 
 .button {
@@ -42,12 +47,13 @@ body {
 
 #feedback {
     display: none;
+    color: red;
 }
 
 #trial {
     padding: 20px;
     width: 1050px;
-    min-height: 712px;
+    min-height: 600px;
     margin: 0 auto;
     display: none;
     text-align: center;
@@ -66,27 +72,24 @@ body {
 #trialOptions{
     text-align: center;
     padding: 20px;
+    overflow: hidden;
 }
 
-.radioGroup {
-    margin: 0px 410px;
+.option {
+    padding: 5px 20px;
+    margin: 5px auto;
 }
 
-.radioOption {
-    display: block;
-    text-align: left;
-    margin-bottom: 10px;
+#option1box {
+    float: left;
+    margin-left: 350px;
 }
 
-label, label>input[type='radio']{
-    font-size: 20px;
-    display: inline-block;
-    margin: 0;
-    line-height: 28px;
-    height: 28px;
-    vertical-align: top;
+#option2box {
+    float: right;
+    margin-right: 350px;
 }
 
-#nextTrialButton {
+#nextTrialMessage {
     display: none;
 }

@@ -3,6 +3,7 @@ let hitId = 0;
 /* Parameters */
 // let rootPath = "https://roi-disruption.s3.amazonaws.com/scene_behavioural/";
 let rootPath = "";
+let catchFreq = 5;
 
 /* Globals */
 var trials = [];
@@ -19,6 +20,7 @@ var scene1s = [];
 var scene2s = [];
 var img1s = [];
 var img2s = [];
+var isCatchs = [];
 var reactionTimes = [];
 
 function trialDone() {
@@ -32,6 +34,13 @@ function trialDone() {
         scene2s.push(trial["scene2"]);
         img1s.push(trial["img1"]);
         img2s.push(trial["img2"]);
+
+        // Note whether or not this was a catch trial
+        if (trial["type"] === "catch") {
+            isCatchs.push(1);
+        } else {
+            isCatchs.push(0);
+        }
 
         // Record the reaction time
         var trialEndTime = new Date();
@@ -47,9 +56,7 @@ function trialDone() {
 
     // Finished experiment
     if (curTrial >= trials.length) {
-        exportData();
-        $("#trial").hide();
-        $("#submitButton").show();
+        doneExperiment();
         return;
     }
 
@@ -64,62 +71,96 @@ function trialBegin() {
 }
 
 function finishedTraining() {
-  canProceed = false;
-  $("#trainEndWarning").show();
-  $("#proceedExperiment").click(function () {
-    canProceed = true;
-    $("#trainEndWarning").hide();
-  });
+    canProceed = false;
+    $("#trainEndWarning").show();
+    $("#proceedExperiment").click(function () {
+        canProceed = true;
+        $("#trainEndWarning").hide();
+        $('#nextTrialMessage').show();
+    });
+}
+
+function doneExperiment() {
+    exportData();
+    $("#trial").hide();
+    $(document).unbind("keydown.responded");
+    $(document).unbind("keydown.nextTrial");
+    $("#submitButton").show();
 }
 
 function startExperiment() {
-  $("#startExperiment").hide();
-  $("#instructionsContainer").hide();
-  $("#trial").show();
+    $("#startExperiment").hide();
+    $("#instructionsContainer").hide();
+    $("#trial").show();
 
-  // Click events
+    // Click events
 
-  // User has selected a response
-  $("input[name=responseOption]").click(function () {
-      $("#nextTrialButton").show();
-      if (training) {
-          $('#feedback').show();
-          if (trials[curTrial]["scene1"] === trials[curTrial]["scene2"]) {
-              $('#feedbackAnswer').html("Correct answer: SAME room");
-          }
-          else {
-              $('#feedbackAnswer').html("Correct answer: Different rooms");
-          }
-      }
-      if (curTrial === nTraining - 1 && curResponse === null) { // If this is the last training image, give a warning
-          finishedTraining();
-      }
-      curResponse = $(this).val();
-  });
-
-  // User has clicked the button to continue to the next trial
-  $("#nextTrial").click(function () {
-    if (canProceed) {
-        $("input[name=responseOption]").prop("checked", false);
-        $("#nextTrialButton").hide();
-        $('#feedback').hide();
-        if (curTrial === nTraining - 1) {                   // If training has ended
-            $("#sessionMode").html("Experiment segment")
+    // User has selected a response (pressed a key)
+    $(document).bind("keydown.responded", function (event) {
+        // Check if the key corresponds to a valid response
+        if (event.which != 68 && event.which != 75) {
+            return;
         }
-        trialDone();
-    }
-  });
 
-  trialBegin();
+        // Display the answer if we're in the training phase
+        if (training) {
+            $('#feedback').show();
+            if (trials[curTrial]["scene1"] === trials[curTrial]["scene2"]) {
+                $('#feedbackAnswer').html("Correct answer: SAME room");
+            } else {
+                $('#feedbackAnswer').html("Correct answer: Different rooms");
+            }
+        }
+
+        // If this is the last training image, give a warning that must be acknowledged before continuing
+        if (curTrial === nTraining - 1 && curResponse === null) {
+            finishedTraining();
+        }
+
+        // Allow user to continue to the next trial
+        if (canProceed) {
+            $('#nextTrialMessage').show();
+        }
+
+        // Register which response was made
+        if (event.which == 68) {
+            curResponse = 'different';
+            $('#option1box').css("background-color", "lightgrey");
+            $('#option2box').css("background-color", "white");
+        } else {
+            curResponse = 'same';
+            $('#option2box').css("background-color", "lightgrey");
+            $('#option1box').css("background-color", "white");
+        }
+    });
+
+    // User wishes to continue to the next trial (pressed the "Space" key)
+    $(document).bind("keydown.nextTrial", function (event) {
+        // Check if they pressed the space bar and that they've responded
+        // (and that they've acknowledged being done training)
+        if (event.which == 32 && curResponse != null && canProceed) {
+            $('#nextTrialMessage').hide();
+            $('#feedback').hide();
+            $('#option1box').css("background-color", "white");
+            $('#option2box').css("background-color", "white");
+            if (curTrial === nTraining - 1) {                   // If training has ended
+                $("#sessionMode").html("Experiment segment")
+            }
+            trialDone();
+        }
+    });
+
+    trialBegin();
 }
 
 function exportData() {
-  $("#response").val(responses.join());
-  $("#scene1").val(scene1s.join());
-  $("#scene2").val(scene2s.join());
-  $("#img1").val(img1s.join());
-  $("#img2").val(img2s.join());
-  $("#reactionTime").val(reactionTimes.join());
+    $("#response").val(responses.join());
+    $("#scene1").val(scene1s.join());
+    $("#scene2").val(scene2s.join());
+    $("#img1").val(img1s.join());
+    $("#img2").val(img2s.join());
+    $("#isCatch").val(isCatchs.join());
+    $("#reactionTime").val(reactionTimes.join());
 }
 
 /* Setup/preloading code */
@@ -127,11 +168,34 @@ function exportData() {
 function getTrials(callback) {
     $.getJSON(rootPath + "assets/train_hit_set.json", function (dataTrain) {
         var trainTrials = dataTrain["train_hit_set"];
+        for (var i = 0; i < trainTrials.length; i++) {
+            trainTrials[i]["type"] = "train";
+        }
         nTraining = trainTrials.length;
-        $.getJSON(rootPath + "assets/hit_sets.json", function(data) {
-            trials = data["hit_sets"][hitId];
-            trials = trainTrials.concat(trials);
-            callback();
+        $.getJSON(rootPath + "assets/catch_hit_set.json", function (dataCatch) {
+            var catchTrials = dataCatch["catch_hit_set"];
+            for (var i = 0; i < catchTrials.length; i++) {
+                catchTrials[i]["type"] = "catch";
+            }
+            $.getJSON(rootPath + "assets/hit_sets.json", function (data) {
+                expTrials = data["hit_sets"][hitId];
+                for (var i = 0; i < expTrials.length; i++) {
+                    expTrials[i]["type"] = "experiment";
+                }
+
+                // Mix the catch trials in with the experiment trials
+                var trialsWithCatches = [];
+                for (var iExp = 0, iCatch = 0; iExp < expTrials.length; iExp++) {
+                  trialsWithCatches.push(expTrials[iExp]);
+                  if (iExp % catchFreq == catchFreq - 1) {
+                    trialsWithCatches.push(catchTrials[iCatch]);
+                    iCatch++;
+                  }
+                }
+
+                trials = trainTrials.concat(trialsWithCatches);
+                callback();
+            });
         });
     });
 }
@@ -139,58 +203,63 @@ function getTrials(callback) {
 var imgCounter = 0;
 
 function preloadStimuli(callback) {
-  for (var i = 0; i < trials.length; i++) {
-      preloadImg(trials[i], 1);
-      preloadImg(trials[i], 2);
-  }
-  waitForStimuliToPreload(callback);
-  console.log("Image preloading complete.");
+    for (var i = 0; i < trials.length; i++) {
+        preloadImg(trials[i], 1);
+        preloadImg(trials[i], 2);
+    }
+    waitForStimuliToPreload(callback);
+    console.log("Image preloading complete.");
 }
 
 function preloadImg(trial, imgNum) {
-    let imgPath = rootPath + "images/" + trial["scene"+imgNum] + "/" + trial["img"+imgNum]+ ".jpg";
-      loadImage(imgPath).then((img) => {
-          console.log("Preloading:", img);
-          trial["img"+imgNum+"Data"] = img;
-          imgCounter++;
-          console.log("Image preloading progress: " + Math.round(100 * (imgCounter / (2 * trials.length))) + "%");
-      });
+    let imgPath = rootPath + "images/" + trial["type"] + "/" +
+        trial["scene" + imgNum] + "/" + trial["img" + imgNum] + ".jpg";
+    loadImage(imgPath).then((img) => {
+        console.log("Preloading:", img);
+        trial["img" + imgNum + "Data"] = img;
+        imgCounter++;
+        console.log("Image preloading progress: " + Math.round(100 * (imgCounter / (2 * trials.length))) + "%");
+    });
 }
 
 function loadImage(src) {
-    return new Promise((resolve, reject)=> {
+    return new Promise((resolve, reject) => {
         var img = new Image();
-        img.onload = ()=> resolve(img);
+        img.onload = () => resolve(img);
         img.src = src;
     });
 }
 
 function waitForStimuliToPreload(callback) {
-  if (imgCounter < (2 * trials.length)) {
-      setTimeout(function() {waitForStimuliToPreload(callback)}, 24);
-  } else {
-      // load trial
-      callback();
-  }
+    if (imgCounter < (2 * trials.length)) {
+        setTimeout(function () {
+            waitForStimuliToPreload(callback)
+        }, 24);
+    } else {
+        // load trial
+        callback();
+    }
 }
 
-$(document).ready(function() {
-  $("#submitButton").hide();
-  getTrials(function() {
-    preloadStimuli(function(){
-      $("#consent").click(function(){
-          $("#startExperiment").click(function(){
-              startExperiment();
-          });
-      });
-  });
-  });
+$(document).ready(function () {
+    $("#submitButton").hide();
+    $("#sameDirectionImg").prop("src", rootPath + "assets/same_direction.png");
+    $("#differentDirectionImg").prop("src", rootPath + "assets/different_direction.png");
+    getTrials(function () {
+        preloadStimuli(function () {
+            $("#consent").click(function () {
+                $("#startExperiment").click(function () {
+                    startExperiment();
+                });
+            });
+        });
+    });
 });
 
 /* Utility functions */
 
 function pad(num, size) {
-    var s = num+"";
+    var s = num + "";
     while (s.length < size) s = "0" + s;
     return s;
 }
