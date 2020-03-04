@@ -19,8 +19,14 @@ body {
 	font-size: 16px;
 }
 
+#exampleViewsExplanation {
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
 .exampleViews {
     margin-bottom: 5px;
+    margin-top: 0;
 }
 
 .button {
@@ -47,7 +53,6 @@ body {
 
 #feedback {
     display: none;
-    color: red;
 }
 
 #trial {

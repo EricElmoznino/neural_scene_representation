@@ -88,6 +88,27 @@ function doneExperiment() {
     $("#submitButton").show();
 }
 
+function giveFeedback() {
+    $('#feedback').show();
+    if (trials[curTrial]["scene1"] === trials[curTrial]["scene2"]) {
+        if (curResponse == 'same') {
+            $('#feedbackAnswer').html("Correct! These are from the SAME room");
+            $('#feedbackAnswer').css("color", "green");
+        } else {
+            $('#feedbackAnswer').html("Incorrect. These are from the SAME room");
+            $('#feedbackAnswer').css("color", "red");
+        }
+    } else {
+        if (curResponse == 'different') {
+            $('#feedbackAnswer').html("Correct! These are from DIFFERENT rooms");
+            $('#feedbackAnswer').css("color", "green");
+        } else {
+            $('#feedbackAnswer').html("Incorrect. These are from DIFFERENT rooms");
+            $('#feedbackAnswer').css("color", "red");
+        }
+    }
+}
+
 function startExperiment() {
     $("#startExperiment").hide();
     $("#instructionsContainer").hide();
@@ -100,16 +121,6 @@ function startExperiment() {
         // Check if the key corresponds to a valid response
         if (event.which != 68 && event.which != 75) {
             return;
-        }
-
-        // Display the answer if we're in the training phase
-        if (training) {
-            $('#feedback').show();
-            if (trials[curTrial]["scene1"] === trials[curTrial]["scene2"]) {
-                $('#feedbackAnswer').html("Correct answer: SAME room");
-            } else {
-                $('#feedbackAnswer').html("Correct answer: Different rooms");
-            }
         }
 
         // If this is the last training image, give a warning that must be acknowledged before continuing
@@ -131,6 +142,11 @@ function startExperiment() {
             curResponse = 'same';
             $('#option2box').css("background-color", "lightgrey");
             $('#option1box').css("background-color", "white");
+        }
+
+        // Display the answer if we're in the training phase
+        if (training) {
+            giveFeedback();
         }
     });
 
