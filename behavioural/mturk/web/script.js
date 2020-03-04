@@ -11,6 +11,7 @@ var curTrial = 0;
 var curResponse = null;
 var nTraining;
 var trialStartTime;
+var experimentStartTime;
 var training = true;
 var canProceed = true;
 
@@ -110,6 +111,7 @@ function giveFeedback() {
 }
 
 function startExperiment() {
+    experimentStartTime = new Date();
     $("#startExperiment").hide();
     $("#instructionsContainer").hide();
     $("#trial").show();
@@ -119,7 +121,7 @@ function startExperiment() {
     // User has selected a response (pressed a key)
     $(document).bind("keydown.responded", function (event) {
         // Check if the key corresponds to a valid response
-        if (event.which != 68 && event.which != 75) {
+        if (event.which != 70 && event.which != 74) {
             return;
         }
 
@@ -134,7 +136,7 @@ function startExperiment() {
         }
 
         // Register which response was made
-        if (event.which == 68) {
+        if (event.which == 70) {
             curResponse = 'different';
             $('#option1box').css("background-color", "lightgrey");
             $('#option2box').css("background-color", "white");
