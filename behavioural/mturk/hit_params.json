@@ -1,0 +1,19 @@
+{
+  "Title": "Test title",
+  "RequesterAnnotation": "Test annotation",
+  "Description": "Test description",
+  "Keywords": "keyword1, keyword2",
+  "Reward": "0.1",
+  "AssignmentDurationInSeconds": 3600,
+  "AutoApprovalDelayInSeconds": 7200,
+  "LifetimeInSeconds": 604800,
+  "MaxAssignments": 1,
+  "QualificationRequirements": [
+    {"QualificationTypeId": "00000000000000000071",
+      "Comparator": "EqualTo",
+      "LocaleValues": [{"Country": "US"}]},
+    {"QualificationTypeId": "000000000000000000L0",
+      "Comparator": "GreaterThanOrEqualTo",
+      "IntegerValues": [99]}
+  ]
+}
