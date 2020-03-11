@@ -1,8 +1,8 @@
 let hitId = 0;
 
 /* Parameters */
-// let rootPath = "https://roi-disruption.s3.amazonaws.com/scene_behavioural/";
-let rootPath = "";
+let rootPath = "https://scene-representation-gqn.s3.amazonaws.com/behavioural/";
+// let rootPath = "";
 let catchFreq = 5;
 
 /* Globals */
@@ -77,7 +77,7 @@ function finishedTraining() {
     $("#proceedExperiment").click(function () {
         canProceed = true;
         $("#trainEndWarning").hide();
-        $('#nextTrialMessage').show();
+        $("#nextTrialMessage").show();
     });
 }
 
@@ -90,22 +90,22 @@ function doneExperiment() {
 }
 
 function giveFeedback() {
-    $('#feedback').show();
+    $("#feedback").show();
     if (trials[curTrial]["scene1"] === trials[curTrial]["scene2"]) {
-        if (curResponse == 'same') {
-            $('#feedbackAnswer').html("Correct! These are from the SAME room");
-            $('#feedbackAnswer').css("color", "green");
+        if (curResponse == "same") {
+            $("#feedbackAnswer").html("Correct! These are from the SAME room");
+            $("#feedbackAnswer").css("color", "green");
         } else {
-            $('#feedbackAnswer').html("Incorrect. These are from the SAME room");
-            $('#feedbackAnswer').css("color", "red");
+            $("#feedbackAnswer").html("Incorrect. These are from the SAME room");
+            $("#feedbackAnswer").css("color", "red");
         }
     } else {
-        if (curResponse == 'different') {
-            $('#feedbackAnswer').html("Correct! These are from DIFFERENT rooms");
-            $('#feedbackAnswer').css("color", "green");
+        if (curResponse == "different") {
+            $("#feedbackAnswer").html("Correct! These are from DIFFERENT rooms");
+            $("#feedbackAnswer").css("color", "green");
         } else {
-            $('#feedbackAnswer').html("Incorrect. These are from DIFFERENT rooms");
-            $('#feedbackAnswer').css("color", "red");
+            $("#feedbackAnswer").html("Incorrect. These are from DIFFERENT rooms");
+            $("#feedbackAnswer").css("color", "red");
         }
     }
 }
@@ -132,21 +132,21 @@ function startExperiment() {
 
         // Allow user to continue to the next trial
         if (canProceed) {
-            $('#nextTrialMessage').show();
+            $("#nextTrialMessage").show();
         }
 
         // Register which response was made
         if (event.which == 70) {
-            curResponse = 'different';
-            $('#option1box').css("background-color", "lightgrey");
-            $('#option2box').css("background-color", "white");
+            curResponse = "different";
+            $("#option1box").css("background-color", "lightgrey");
+            $("#option2box").css("background-color", "white");
         } else {
-            curResponse = 'same';
-            $('#option2box').css("background-color", "lightgrey");
-            $('#option1box').css("background-color", "white");
+            curResponse = "same";
+            $("#option2box").css("background-color", "lightgrey");
+            $("#option1box").css("background-color", "white");
         }
 
-        // Display the answer if we're in the training phase
+        // Display the answer if we"re in the training phase
         if (training) {
             giveFeedback();
         }
@@ -154,13 +154,13 @@ function startExperiment() {
 
     // User wishes to continue to the next trial (pressed the "Space" key)
     $(document).bind("keydown.nextTrial", function (event) {
-        // Check if they pressed the space bar and that they've responded
-        // (and that they've acknowledged being done training)
+        // Check if they pressed the space bar and that they"ve responded
+        // (and that they"ve acknowledged being done training)
         if (event.which == 32 && curResponse != null && canProceed) {
-            $('#nextTrialMessage').hide();
-            $('#feedback').hide();
-            $('#option1box').css("background-color", "white");
-            $('#option2box').css("background-color", "white");
+            $("#nextTrialMessage").hide();
+            $("#feedback").hide();
+            $("#option1box").css("background-color", "white");
+            $("#option2box").css("background-color", "white");
             if (curTrial === nTraining - 1) {                   // If training has ended
                 $("#sessionMode").html("Experiment segment")
             }
@@ -265,10 +265,11 @@ $(document).ready(function () {
     $("#differentDirectionImg").prop("src", rootPath + "assets/different_direction.png");
     getTrials(function () {
         preloadStimuli(function () {
-            $("#consent").click(function () {
-                $("#startExperiment").click(function () {
-                    startExperiment();
-                });
+            $("#startExperiment").click(function () {
+                if ($("#consent").prop("checked") == false) {
+                    return;
+                }
+                startExperiment();
             });
         });
     });
