@@ -1,11 +1,10 @@
-let hitId = 0;
-
 /* Parameters */
 let rootPath = "https://scene-representation-gqn.s3.amazonaws.com/behavioural/";
 // let rootPath = "";
 let catchFreq = 5;
 
 /* Globals */
+var hitSetId;
 var trials = [];
 var curTrial = 0;
 var curResponse = null;
@@ -86,7 +85,10 @@ function doneExperiment() {
     $("#trial").hide();
     $(document).unbind("keydown.responded");
     $(document).unbind("keydown.nextTrial");
-    $("#submitButton").show();
+    $('#submitButton').show();
+    $('#submitButton').click(function(){
+        document.forms[0].submit(); //submit the form to Turk
+    });
 }
 
 function giveFeedback() {
@@ -112,7 +114,6 @@ function giveFeedback() {
 
 function startExperiment() {
     experimentStartTime = new Date();
-    $("#startExperiment").hide();
     $("#instructionsContainer").hide();
     $("#trial").show();
 
@@ -179,6 +180,7 @@ function exportData() {
     $("#img2").val(img2s.join());
     $("#isCatch").val(isCatchs.join());
     $("#reactionTime").val(reactionTimes.join());
+    $("#hitSetId").val(hitSetId);
 }
 
 /* Setup/preloading code */
@@ -196,7 +198,7 @@ function getTrials(callback) {
                 catchTrials[i]["type"] = "catch";
             }
             $.getJSON(rootPath + "assets/hit_sets.json", function (data) {
-                expTrials = data["hit_sets"][hitId];
+                expTrials = data["hit_sets"][hitSetId];
                 for (var i = 0; i < expTrials.length; i++) {
                     expTrials[i]["type"] = "experiment";
                 }
@@ -260,7 +262,14 @@ function waitForStimuliToPreload(callback) {
 }
 
 $(document).ready(function () {
-    $("#submitButton").hide();
+    // Get turk information
+	assignmentId = turkGetParam("assignmentId", "NONE");    //Getting the assignmentId from turk query (URL)
+	$('#assignmentId').val(assignmentId);
+	workerId = turkGetParam("workerId", "NONE");            //Getting the workerId from turk query (URL)
+	$('#workerId').val(workerId);
+	hitSetId = turkGetParam("hitSetId", "NONE");            //Getting the hitSetId from turk query (URL)
+	$('#hitSetId').val(workerId);
+
     $("#sameDirectionImg").prop("src", rootPath + "assets/same_direction.png");
     $("#differentDirectionImg").prop("src", rootPath + "assets/different_direction.png");
     getTrials(function () {
@@ -276,6 +285,21 @@ $(document).ready(function () {
 });
 
 /* Utility functions */
+
+/** FromTim Turk Tools
+ * Gets a URL parameter from the query string
+ */
+function turkGetParam(name, defaultValue ) {
+   var regexS = "[\?&]"+name+"=([^&#]*)";
+   var regex = new RegExp( regexS );
+   var tmpURL = window.location.href;
+   var results = regex.exec( tmpURL );
+   if( results == null ) {
+     return defaultValue;
+   } else {
+     return results[1];
+   }
+}
 
 function pad(num, size) {
     var s = num + "";

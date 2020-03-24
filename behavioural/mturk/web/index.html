@@ -1,6 +1,22 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<!-- Whenever use form, include Tim Turk Tools, experiment.css. Use https:// since
+	   this code will execute within the context of https://mturk.com, and browsers
+		 will give warnings for any access to non-https resources: -->
+<script type="https://timbrady.org/turk/TimTurkTools.js"></script>
+
 <link rel="stylesheet" type="text/css" href="style.css">
 <script type="text/javascript" src="script.js"></script>
+
+<!-- Wrap the entire experiment in a form. Always start the form with a hidden input for the
+		 Turk assignment ID that we'll fill in with their real assignment ID in Javascript -->
+		 <!-- When in real task, change action to https://workersandbox.mturk.com/mturk/externalSubmit  -->
+<form id="turkSubmit" action="https://workersandbox.mturk.com/mturk/externalSubmit" method="post" autocomplete="off">
+<!--<form id="turkSubmit" action="https://www.mturk.com/mturk/externalSubmit" method="post" autocomplete="off">-->
+<input type="hidden" name="assignmentId" id="assignmentId" value="">
+<input type="hidden" name="workerId" id="workerId" value="">
+<input type="hidden" id="hitSetId" name="hitSetId" value="">
+<input type="submit" value="Submit" name="submitButton" id="submitButton" style="display: none">
 
 <div class="container" id="instructionsContainer">
     <div id="instructions">
@@ -59,11 +75,9 @@
 <input type="hidden" id="response" name="response" value="">
 <input type="hidden" id="scene1" name="scene1" value="">
 <input type="hidden" id="scene2" name="scene2" value="">
-<input type="hidden" id="image1" name="image1" value="">
-<input type="hidden" id="image2" name="image2" value="">
-<input type="hidden" id="isCatch" name="image2" value="">
+<input type="hidden" id="img1" name="img1" value="">
+<input type="hidden" id="img2" name="img2" value="">
+<input type="hidden" id="isCatch" name="isCatch" value="">
 <input type="hidden" id="reactionTime" name="reactionTime" value="">
-<input type="hidden" id="experimentTime" name="experimentTime" value="">
 
-<!-- do not put this on Turk -->
-<input type="submit" id="submitButton">
+</form>
