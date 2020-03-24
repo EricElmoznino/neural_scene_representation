@@ -91,3 +91,4 @@ if __name__ == '__main__':
                              args.min_hits_per_pair, args.intra_inter_ratio)
     with open('web/assets/hit_sets.json', 'w') as f:
         f.write(json.dumps({'hit_sets': hits}, indent=2))
+    print('Generated {} hit sets'.format(len(hits)))
