@@ -63,8 +63,8 @@ if __name__ == '__main__':
         if worker_results['NumResults'] < 0:
             continue
 
-        num_hits_completed += 1
         for assignment in worker_results['Assignments']:
+            num_hits_completed += 1
             responses.append(read_assignment(assignment))
 
     responses = pd.DataFrame(responses)
