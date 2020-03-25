@@ -38,7 +38,9 @@ def setup_mturk_connection(credentials, production=False):
         region_name='us-east-1',
         endpoint_url=mturk_environment['endpoint'])
 
-    return mturk
+    preview_path = mturk_environment['preview']
+
+    return mturk, preview_path
 
 
 if __name__ == '__main__':
@@ -49,7 +51,7 @@ if __name__ == '__main__':
 
     with open('credentials.json', 'r') as f:
         credentials = json.loads(f.read())
-    mturk = setup_mturk_connection(credentials, production=args.production)
+    mturk, preview_path = setup_mturk_connection(credentials, production=args.production)
 
     with open('hit_params.json', 'r') as f:
         hit_params = json.loads(f.read())
@@ -66,6 +68,9 @@ if __name__ == '__main__':
         hit = mturk.create_hit_with_hit_type(Question=question, HITTypeId=hit_type_id,
                                              **hit_params['create_hit'])['HIT']
         hit_ids.append(hit['HITId'])
+
+        if hit_set_id == 0:
+            print('Preview experiment at:\n{}?groupId={}'.format(preview_path, hit['HITGroupId']))
 
     with open('created_hits/' + datetime.utcnow().strftime("%d:%m:%Y_%H:%M:%S") + '.txt', 'w') as f:
         f.write('\n'.join(hit_ids))

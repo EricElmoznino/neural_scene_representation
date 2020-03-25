@@ -1,9 +1,9 @@
 {
   "hit_type": {
-    "Title": "Test title",
-    "Description": "Test description",
-    "Keywords": "keyword1, keyword2",
-    "Reward": "0.1",
+    "Title": "Decide if images are from the same room",
+    "Description": "You will be shown several pairs of images and have to decide whether or not each pair comes from the room.",
+    "Keywords": "images, classification, challenging, psychology, fun",
+    "Reward": "0.6",
     "AssignmentDurationInSeconds": 3600,
     "AutoApprovalDelayInSeconds": 7200,
     "QualificationRequirements": [
@@ -16,7 +16,7 @@
     ]
   },
   "create_hit": {
-    "RequesterAnnotation": "Test annotation",
+    "RequesterAnnotation": "Behavioural experiment for GQN scene representation project.",
     "LifetimeInSeconds": 604800,
     "MaxAssignments": 1
   }
