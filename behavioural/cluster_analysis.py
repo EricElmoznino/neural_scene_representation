@@ -38,11 +38,11 @@ def mds_coordinates(rdm, n_scenes):
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Assess the clustering of behavioural data based on rdm')
-    parser.add_argument('--rdm_path', required=True, type=str, help='path to the rdm to analyze')
-    parser.add_argument('--n_scenes', default=16, type=str, help='number of scenes in rdm')
+    parser.add_argument('--rdm', required=True, type=str, help='filename of the rdm to analyze')
+    parser.add_argument('--n_scenes', required=True, type=int, help='number of scenes in rdm')
     args = parser.parse_args()
 
-    rdm = np.load(args.rdm_path)
+    rdm = np.load('behavioural/results/' + args.rdm)
     clustering_index = get_clustering_index(rdm, args.n_scenes)
     mds_coords = mds_coordinates(rdm, args.n_scenes)
     plot_scatter(mds_coords, 'Clustering Index: {:.3f}'.format(clustering_index))

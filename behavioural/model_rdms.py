@@ -19,18 +19,18 @@ def load_model(model_path, vae=False):
     return rep
 
 
-def load_data(data_dir):
+def load_data(data_dir, n_scenes, imgs_per_scene):
     data = XYRHDataset(os.path.join(data_dir, 'renderings'), resolution=64)
+    data.scenes = data.scenes[:n_scenes]
     images, viewpoints = [], []
     for x, v in data:
-        images.append(x)
-        viewpoints.append(v)
+        images.append(x[:imgs_per_scene])
+        viewpoints.append(v[:imgs_per_scene])
     images = torch.cat(images)
     viewpoints = torch.cat(viewpoints)
     scale_factor = np.load(os.path.join(data_dir, 'scale_factor.npy')).item()
     viewpoints[:, 0:2] /= scale_factor
-    n_scenes = len(data)
-    return images, viewpoints, n_scenes
+    return images, viewpoints
 
 
 def compute_rdm(images, viewpoints, model, metric='eucl', vae=False):
@@ -61,13 +61,15 @@ if __name__ == '__main__':
     parser.add_argument('--model_path', required=True, type=str,
                         help='path to saved model')
     parser.add_argument('--data_dir', required=True, type=str, help='directory of the data')
+    parser.add_argument('--n_scenes', required=True, type=int, help='number of scenes to process')
+    parser.add_argument('--imgs_per_scene', required=True, type=int, help='number of images per scene to process')
     parser.add_argument('--metric', default='1-corr', choices=['eucl', '1-corr'])
     parser.add_argument('--vae', action='store_true', help='whether to run VAE instead of GQN')
     args = parser.parse_args()
 
     model = load_model(args.model_path, vae=args.vae)
-    images, viewpoints, n_scenes = load_data(args.data_dir)
+    images, viewpoints = load_data(args.data_dir, args.n_scenes, args.imgs_per_scene)
     rdm = compute_rdm(images, viewpoints, model, metric=args.metric, vae=args.vae)
     save_name = 'gqn_rdm.npy' if not args.vae else 'vae_rdm.npy'
     np.save('behavioural/results/' + save_name, rdm)
-    plot_rdm(rdm, n_scenes)
+    plot_rdm(rdm, args.n_scenes)

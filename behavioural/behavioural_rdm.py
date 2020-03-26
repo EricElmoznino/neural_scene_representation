@@ -44,19 +44,19 @@ def compute_accuracy(data):
 
 def compute_rdm(data):
     data = data.copy()
-    data['same_scene'] = data['scene1'] == data['scene2']
-    data['correct'] = data['same_scene'] & (data['response'] == 'same') | \
-                      ~data['same_scene'] & (data['response'] == 'different')
-    pair_means = data[['scene1', 'scene2', 'img1', 'img2', 'correct']]\
+    data['dissimilarity'] = (data['response'] == 'different').astype('float32')
+    pair_means = data[['scene1', 'scene2', 'img1', 'img2', 'dissimilarity']]\
         .groupby(['scene1', 'scene2', 'img1', 'img2']).mean().reset_index()
 
+    imgs_per_scene = int(data['img1'].max() + 1)
     n_scenes = int(data['scene1'].max() + 1)
-    n_images = int(n_scenes * (data['img1'].max() + 1))
+    n_images = int(imgs_per_scene * n_scenes)
     pairwise_dissimilarities = np.zeros((n_images, n_images))
     for _, pair in pair_means.iterrows():
-        first_idx = int(pair['scene1'] * n_scenes + pair['img1'])
-        second_idx = int(pair['scene2'] * n_scenes + pair['img2'])
-        pairwise_dissimilarities[first_idx, second_idx] = 1 - pair['correct']
+        first_idx = int(pair['scene1'] * imgs_per_scene + pair['img1'])
+        second_idx = int(pair['scene2'] * imgs_per_scene + pair['img2'])
+        pairwise_dissimilarities[first_idx, second_idx] = pair['dissimilarity']
+        pairwise_dissimilarities[second_idx, first_idx] = pair['dissimilarity']
 
     return pairwise_dissimilarities
 
