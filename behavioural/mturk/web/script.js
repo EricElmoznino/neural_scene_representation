@@ -1,6 +1,10 @@
+let debug = true;
+
 /* Parameters */
 let rootPath = "https://scene-representation-gqn.s3.amazonaws.com/behavioural/";
-// let rootPath = "";
+if (debug) {
+    rootPath = "";
+}
 let catchFreq = 5;
 
 /* Globals */
@@ -290,6 +294,9 @@ $(document).ready(function () {
  * Gets a URL parameter from the query string
  */
 function turkGetParam(name, defaultValue ) {
+   if (debug) {
+    return 0;
+   }
    var regexS = "[\?&]"+name+"=([^&#]*)";
    var regex = new RegExp( regexS );
    var tmpURL = window.location.href;
